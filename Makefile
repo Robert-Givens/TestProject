@@ -1,5 +1,5 @@
 run:
-    python test.py
+	python3 test.py
 
 venv:
 	python3 -m venv venv
