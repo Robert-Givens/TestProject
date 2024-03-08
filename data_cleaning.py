@@ -9,11 +9,28 @@ import statsmodels.formula.api as smf
 results = pd.read_excel("NFL Schedule.xlsx")
 status = pd.read_excel("NFL Player Status.xlsx")
 
-# Create injury data at team-week-season level
+# Filter status to only include rows where the player is out
 status['out'] = np.where(status['Active_Inactive'] == "Out", 1, 0)
+
+# Calculate the average snap rate for each category for each player who is out
+status_in = status[status['out'] == 0]
+# Calculate the average snap rate for each category for each player and season where 'out' is 0
+player_avg = status_in.groupby(['name_abbr', 'Season'])[['Offense.Snap.Rate', 'Defense.Snap.Rate', 'Special.Teams.Snap.Rate']].mean().reset_index()
+
+# Rename the columns
+player_avg.rename(columns={
+    'Offense.Snap.Rate': 'average_offense_snap_rate', 
+    'Defense.Snap.Rate': 'average_defense_snap_rate', 
+    'Special.Teams.Snap.Rate': 'average_special_teams_snap_rate'}, inplace=True)
+
+# Merge this new data with status
+status = pd.merge(status, player_avg, on=['name_abbr', 'Season'], how='left')
+
+# Add Player Age at the start of the season
 status['age'] = status.groupby(['Team', 'Season'])['Age_Start_Season'].transform('mean')
-out = status.groupby(['Team', 'Season', 'Week', 'age'])['out'].sum().reset_index()
+out = status.groupby(['Team', 'Season', 'Week', 'age','Offense.Snap.Rate','Defense.Snap.Rate','Special.Teams.Snap.Rate'])['out'].sum().reset_index()
 out = out.sort_values(by=['Team', 'Season', 'Week'])
+
 
 # Create a win-loss data at team-week-season level
 winners = results[['Week', 'Season', 'Winner/tie']].rename(columns={'Winner/tie': 'Team'})

@@ -1,4 +1,3 @@
-rm(list = ls())
 library(readxl)
 library(tidyverse)
 library(stargazer)
@@ -19,7 +18,7 @@ out <- status %>%
   mutate(out = ifelse(Active_Inactive == "Out", 1, 0)) %>%
   group_by(Team, Season, Week, age) %>%
   summarise(out = sum(out)) %>%
-  arrange(Team, Season, Week) 
+  arrange(Team, Season, Week)
 
 # Create a win loss data at team-week-season level
 winners <- results %>%
@@ -34,7 +33,7 @@ win_loss <- bind_rows(winners, losers) %>% arrange(Team, Season, Week)
 finaldata <- merge(win_loss, out, by = c("Team", "Season", "Week"), all.x = TRUE)
 
 # Account for Relocated teams
-finaldata = finaldata %>%
+finaldata <- finaldata %>%
   mutate(Team = ifelse(Team == "Washington Redskins", "Washington Football Team", Team)) %>%
   mutate(Team = ifelse(Team == "St. Louis Rams", "Los Angeles Rams", Team)) %>%
   mutate(Team = ifelse(Team == "San Diego Chargers", "Los Angeles Chargers", Team))
@@ -62,7 +61,6 @@ save(finaldata, file = "final_data.rda")
 # Preliminary Analysis
 ################################################################################
 
-rm(list = ls())
 load("final_data.rda")
 
 # Summary statistics
@@ -113,6 +111,4 @@ glm_model5b <- glm(win ~ out + as.factor(team) + as.factor(season) + age + lag_w
 stargazer(glm_model1,glm_model2, glm_model3, glm_model4a, glm_model5b, type="text",
           keep = c("out", "age", "lag_win_perc"))
 
-
 ################################################################################
-mean(finaldata$win)
