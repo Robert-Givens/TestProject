@@ -1,9 +1,5 @@
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
-import statsmodels.api as sm
-import statsmodels.formula.api as smf
 
 # Load datasets
 results = pd.read_excel("NFL Schedule.xlsx")
@@ -28,9 +24,12 @@ status = pd.merge(status, player_avg, on=['name_abbr', 'Season'], how='left')
 
 # Add Player Age at the start of the season
 status['age'] = status.groupby(['Team', 'Season'])['Age_Start_Season'].transform('mean')
-out = status.groupby(['Team', 'Season', 'Week', 'age','Offense.Snap.Rate','Defense.Snap.Rate','Special.Teams.Snap.Rate'])['out'].sum().reset_index()
-out = out.sort_values(by=['Team', 'Season', 'Week'])
-
+out = status.groupby(['Team', 'Season', 'Week', 'age']).agg({
+    'Offense.Snap.Rate': 'sum',
+    'Defense.Snap.Rate': 'sum',
+    'Special.Teams.Snap.Rate': 'sum',
+    'out': 'sum'  # Summing the 'out' instances
+}).reset_index()
 
 # Create a win-loss data at team-week-season level
 winners = results[['Week', 'Season', 'Winner/tie']].rename(columns={'Winner/tie': 'Team'})

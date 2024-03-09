@@ -1,3 +1,4 @@
 {
-    "makefile.makePath": ""
+    "makefile.makePath": "",
+    "python.analysis.typeCheckingMode": "basic"
 }

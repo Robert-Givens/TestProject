@@ -18,14 +18,6 @@ plt.show()
 # Correlation table
 print(finaldata[['win', 'out', 'age', 'lag_win_perc']].corr())
 
-# Regression analysis
-def extract_model_results(models):
-    results = {}
-    for name, model in models.items():
-        summary = model.summary2().tables[1]  # Extract the summary table as a DataFrame
-        results[name] = summary[['Coef.', 'Std.Err.', 'P>|t|']]
-    return pd.concat(results, axis=1)
-
 # Linear Models
 lm_model1 = smf.ols('win ~ out', data=finaldata).fit()
 lm_model2 = smf.ols('win ~ out + age', data=finaldata).fit()
@@ -33,7 +25,7 @@ lm_model3 = smf.ols('win ~ out + age + lag_win_perc', data=finaldata).fit()
 lm_model4a = smf.ols('win ~ out + C(team)', data=finaldata).fit() # C() for categorical variables
 lm_model5a = smf.ols('win ~ out + C(team) + age + lag_win_perc', data=finaldata).fit()
 lm_model4b = smf.ols('win ~ out + C(team) + C(season)', data=finaldata).fit()
-lm_model5b = smf.ols('win ~ out + C(team) + C(season) + age + lag_win_perc', data=finaldata).fit()
+lm_model5b = smf.ols('win ~ out + C(team) + C(season) + age + lag_win_perc + offense.snap.rate + defense.snap.rate + special.teams.snap.rate' , data=finaldata).fit()
 
 # Generalized Linear Models for logistic regression (assuming 'win' is a binary outcome)
 glm_model1 = smf.glm('win ~ out', data=finaldata, family=sm.families.Binomial()).fit()
